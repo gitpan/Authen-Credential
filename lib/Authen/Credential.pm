@@ -13,8 +13,8 @@
 package Authen::Credential;
 use strict;
 use warnings;
-our $VERSION  = "0.5";
-our $REVISION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+our $VERSION  = "0.6";
+our $REVISION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 #
 # export control
@@ -284,18 +284,22 @@ Authen::Credential - abstraction of a credential
 
 =head1 DESCRIPTION
 
-This module offers an abstraction of a credential, i.e. something that
-can be used to authenticate. It allows the creation and manipulation
-of credentials. In particular, it defines a standard string
-representation (so that credentials can be given to external programs
-as command line options), a standard structured representation (so
-that credentials can be stored in structured configuration files or
-using JSON) and "preparators" that can transform credentials into
-ready-to-use data for well known targets.
+This module offers abstractions of credentials, i.e. something that
+can be used to authenticate. It allows the creation and manipulation of
+credentials. In particular, it defines a standard string representation
+(so that credentials can be given to external programs as command line
+options), a standard structured representation (so that credentials can
+be stored in structured configuration files or using JSON) and
+"preparators" that can transform credentials into ready-to-use data for
+well known targets.
 
 Different authentication schemes (aka credential types) are supported.
-This package currently supports C<none>, C<plain> and C<x509> but
-others can be added by providing the supporting code in a separate module.
+This package currently supports C<none>, C<plain> and C<x509> but others
+can be added by providing the supporting code in a separate module.
+
+A Python implementation of the same credential abstractions is available
+at http://pypi.python.org/pypi/auth.credential so credentials can be
+shared between different programming languages.
 
 For a given scheme, a credential is represented by an object with a
 fixed set of string attributes. For instance, the C<plain> scheme has
@@ -396,4 +400,4 @@ L<URI::Escape>,
 
 Lionel Cons L<http://cern.ch/lionel.cons>
 
-Copyright CERN 2011
+Copyright CERN 2011-2012

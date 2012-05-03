@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 33;
+use Test::More tests => 37;
 
 use Authen::Credential;
 
@@ -49,6 +49,8 @@ foreach $string (
     "none",
     "plain name=anonymous pass=",
     "plain name=joe pass=sekret",
+    "plain name=joe,pass=sekret",
+    "plain name=joe, pass=sekret",
     "x509",
     "x509 cert=/foo/cert.pem key=/foo/key.pem",
     "x509 cert=/foo/cert.pem key=/foo/key.pem ca=/foo pass=%20",

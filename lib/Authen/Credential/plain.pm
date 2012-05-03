@@ -13,8 +13,8 @@
 package Authen::Credential::plain;
 use strict;
 use warnings;
-our $VERSION  = "0.5";
-our $REVISION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+our $VERSION  = "0.6";
+our $REVISION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 #
 # inheritance
@@ -102,6 +102,18 @@ the C<WWW-Authenticate> header
 
 =back
 
+=head1 EXAMPLE
+
+  use Authen::Credential;
+  use HTTP::Request;
+
+  # get the credential from somewhere
+  $cred = Authen::Credential->parse(...);
+
+  # use the prepare() method to get ready-to-use data
+  $req = HTTP::Request->new(GET => $url);
+  $req->header(Authorization => $cred->prepare("HTTP.Basic"));
+
 =head1 SEE ALSO
 
 L<Authen::Credential>,
@@ -111,4 +123,4 @@ L<http://en.wikipedia.org/wiki/Basic_access_authentication>.
 
 Lionel Cons L<http://cern.ch/lionel.cons>
 
-Copyright CERN 2011
+Copyright CERN 2011-2012

@@ -13,8 +13,8 @@
 package Authen::Credential::x509;
 use strict;
 use warnings;
-our $VERSION  = "0.5";
-our $REVISION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+our $VERSION  = "0.6";
+our $REVISION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 #
 # inheritance
@@ -79,6 +79,7 @@ $Authen::Credential::_Preparator{x509}{"IO::Socket::SSL"} = sub {
     }
     $data{SSL_passwd_cb} = sub { return($self->pass()) }
         if defined($self->pass());
+    $data{SSL_use_cert} = 1 if $data{SSL_cert_file} and $data{SSL_key_file};
     return(\%data);
 };
 
@@ -128,6 +129,22 @@ IO::Socket::SSL
 
 =back
 
+=head1 EXAMPLE
+
+  use Authen::Credential;
+  use IO::Socket::SSL;
+
+  # get the credential from somewhere
+  $cred = Authen::Credential->parse(...);
+
+  # use the prepare() method to get ready-to-use data
+  $sslopts = $cred->prepare("IO::Socket::SSL");
+  $socket = IO::Socket::SSL->new(
+      PeerHost => "web.acme.com",
+      PeerPort => "https",
+      %{ $sslopts },
+  );
+
 =head1 SEE ALSO
 
 L<Authen::Credential>,
@@ -138,4 +155,4 @@ L<http://en.wikipedia.org/wiki/X.509>.
 
 Lionel Cons L<http://cern.ch/lionel.cons>
 
-Copyright CERN 2011
+Copyright CERN 2011-2012
