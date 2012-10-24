@@ -13,8 +13,8 @@
 package Authen::Credential::x509;
 use strict;
 use warnings;
-our $VERSION  = "0.6";
-our $REVISION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+our $VERSION  = "0.7";
+our $REVISION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 #
 # inheritance
@@ -26,14 +26,14 @@ our @ISA = qw(Authen::Credential);
 # used modules
 #
 
-use Authen::Credential;
+use Authen::Credential qw();
 use Params::Validate qw(validate_pos :types);
 
 #
 # Params::Validate specification
 #
 
-$Authen::Credential::_ValidationSpec{x509} = {
+$Authen::Credential::ValidationSpec{x509} = {
     cert => { type => SCALAR, optional => 1 },
     key  => { type => SCALAR, optional => 1 },
     ca   => { type => SCALAR, optional => 1 },
@@ -58,7 +58,7 @@ foreach my $name (qw(cert key ca pass)) {
 # preparators
 #
 
-$Authen::Credential::_Preparator{x509}{"IO::Socket::SSL"} = sub {
+$Authen::Credential::Preparator{x509}{"IO::Socket::SSL"} = sub {
     my($self, %data, $tmp);
     $self = shift(@_);
     validate_pos(@_) if @_;

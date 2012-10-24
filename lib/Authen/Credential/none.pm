@@ -13,8 +13,8 @@
 package Authen::Credential::none;
 use strict;
 use warnings;
-our $VERSION  = "0.6";
-our $REVISION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+our $VERSION  = "0.7";
+our $REVISION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 #
 # inheritance
@@ -26,13 +26,13 @@ our @ISA = qw(Authen::Credential);
 # used modules
 #
 
-use Authen::Credential;
+use Authen::Credential qw();
 
 #
 # Params::Validate specification
 #
 
-$Authen::Credential::_ValidationSpec{none} = {};
+$Authen::Credential::ValidationSpec{none} = {};
 
 1;
 

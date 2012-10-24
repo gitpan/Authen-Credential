@@ -13,8 +13,8 @@
 package Authen::Credential::plain;
 use strict;
 use warnings;
-our $VERSION  = "0.6";
-our $REVISION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+our $VERSION  = "0.7";
+our $REVISION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 #
 # inheritance
@@ -26,7 +26,7 @@ our @ISA = qw(Authen::Credential);
 # used modules
 #
 
-use Authen::Credential;
+use Authen::Credential qw();
 use MIME::Base64 qw(encode_base64);
 use Params::Validate qw(validate_pos :types);
 
@@ -34,7 +34,7 @@ use Params::Validate qw(validate_pos :types);
 # Params::Validate specification
 #
 
-$Authen::Credential::_ValidationSpec{plain} = {
+$Authen::Credential::ValidationSpec{plain} = {
     name => { type => SCALAR },
     pass => { type => SCALAR },
 };
@@ -57,7 +57,7 @@ foreach my $name (qw(name pass)) {
 # preparators
 #
 
-$Authen::Credential::_Preparator{plain}{"HTTP.Basic"} = sub {
+$Authen::Credential::Preparator{plain}{"HTTP.Basic"} = sub {
     my($self);
     $self = shift(@_);
     validate_pos(@_) if @_;

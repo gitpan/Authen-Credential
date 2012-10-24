@@ -1,5 +1,8 @@
 Revision history for Authen-Credential:
 
+0.7	Wed Oct 24 2012
+	* Now using No::Worries.
+
 0.6	Thu May  3 2012
 	* Improved the documentation.
 

@@ -13,23 +13,14 @@
 package Authen::Credential;
 use strict;
 use warnings;
-our $VERSION  = "0.6";
-our $REVISION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
-
-#
-# export control
-#
-
-use Exporter;
-our(@ISA, @EXPORT, @EXPORT_OK);
-@ISA = qw(Exporter);
-@EXPORT = qw();
-@EXPORT_OK = qw(_fatal _require _check);
+our $VERSION  = "0.7";
+our $REVISION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 
 #
 # used modules
 #
 
+use No::Worries::Die qw(dief);
 use Params::Validate qw(validate_with validate_pos :types);
 use URI::Escape qw(uri_escape uri_unescape);
 
@@ -38,12 +29,12 @@ use URI::Escape qw(uri_escape uri_unescape);
 #
 
 our(
-    $_IdRe,		 # regexp matching an identifier
-    $_ValChars,		 # set of all allowed value characters
-    $_SepChars,		 # set of all allowed separator characters
-    %_LoadedModule,	 # hash of successfully loaded modules
-    %_ValidationSpec,	 # per-scheme Params::Validate specification
-    %_Preparator,	 # per-scheme and target preparator code
+    $_IdRe,           # regexp matching an identifier
+    $_ValChars,       # set of all allowed value characters
+    $_SepChars,       # set of all allowed separator characters
+    %_LoadedModule,   # hash of successfully loaded modules
+    %ValidationSpec,  # per-scheme Params::Validate specification
+    %Preparator,      # per-scheme and target preparator code
 );
 
 $_IdRe = qr{[a-z][a-z0-9]*};
@@ -57,18 +48,6 @@ $_SepChars = q{\,\ };
 #---############################################################################
 
 #
-# report a fatal error with a sprintf() API
-#
-
-sub _fatal ($@) {
-    my($message, @arguments) = @_;
-
-    $message = sprintf($message, @arguments) if @arguments;
-    $message =~ s/\s+$//;
-    die(caller() . ": $message\n");
-}
-
-#
 # make sure a module is loaded
 #
 
@@ -79,7 +58,7 @@ sub _require ($) {
     eval("require $module");
     if ($@) {
 	$@ =~ s/\s+at\s.+?\sline\s+\d+\.?$//;
-	_fatal("failed to load %s: %s", $module, $@);
+	dief("failed to load %s: %s", $module, $@);
     } else {
 	$_LoadedModule{$module} = 1;
     }
@@ -93,13 +72,17 @@ sub _check ($@) {
     my($scheme);
 
     $scheme = shift(@_);
-    _fatal("invalid credential scheme (missing validation spec): %s", $scheme)
-	unless $_ValidationSpec{$scheme};
+    dief("invalid credential scheme (missing validation spec): %s", $scheme)
+	unless $ValidationSpec{$scheme};
     return(validate_with(
 	params => \@_,
 	spec => {
-	    %{ $_ValidationSpec{$scheme} },
-	    scheme => { type => SCALAR, regex => qr/^\Q$scheme\E$/, default => $scheme },
+	    %{ $ValidationSpec{$scheme} },
+	    scheme => {
+		type    => SCALAR,
+		regex   => qr/^\Q$scheme\E$/,
+		default => $scheme,
+	    },
 	},
 	stack_skip => 2,
     ));
@@ -149,16 +132,16 @@ sub parse : method {
 	unless @_ == 1 and defined($_[0]) and ref($_[0]) eq "";
     $string = shift(@_);
     return($class->new()) if $string eq "";
-    _fatal("invalid credential string: %s", $string)
+    dief("invalid credential string: %s", $string)
 	unless $string =~ /^[${_ValChars}${_SepChars}\%\=]+$/o;
     @list = split(/[${_SepChars}]+/o, $string);
-    _fatal("invalid credential string: %s", $string)
+    dief("invalid credential string: %s", $string)
 	unless @list and $list[0] =~ /^($_IdRe)$/o;
     %option = (scheme => shift(@list));
     foreach $string (@list) {
-	_fatal("invalid credential key=value: %s", $string)
+	dief("invalid credential key=value: %s", $string)
 	    unless $string =~ /^($_IdRe)\=([$_ValChars\%]*)$/o;
-	_fatal("duplicate credential key: %s", $1)
+	dief("duplicate credential key: %s", $1)
 	    if exists($option{$1});
 	$option{$1} = uri_unescape($2);
     }
@@ -183,7 +166,7 @@ sub string : method {
 
     $self = shift(@_);
     validate_pos(@_) if @_;
-    _fatal("invalid credential: no scheme") unless $self->{scheme};
+    dief("invalid credential: no scheme") unless $self->{scheme};
     @parts = ($self->{scheme});
     foreach $key (sort(keys(%$self))) {
 	next if $key eq "scheme";
@@ -229,9 +212,10 @@ sub prepare : method {
     validate_pos(@_, { type => SCALAR })
 	unless @_ == 1 and defined($_[0]) and ref($_[0]) eq "";
     $target = shift(@_);
-    $preparator = $_Preparator{$self->scheme()}{$target};
+    $preparator = $Preparator{$self->scheme()}{$target};
     return($preparator->($self)) if $preparator;
-    _fatal("invalid %s credential preparation target: %s", $self->scheme(), $target);
+    dief("invalid %s credential preparation target: %s",
+	 $self->scheme(), $target);
 }
 
 1;
