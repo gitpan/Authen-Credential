@@ -13,8 +13,8 @@
 package Authen::Credential::x509;
 use strict;
 use warnings;
-our $VERSION  = "0.7";
-our $REVISION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+our $VERSION  = "0.8";
+our $REVISION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 #
 # inheritance
@@ -46,11 +46,11 @@ $Authen::Credential::ValidationSpec{x509} = {
 
 foreach my $name (qw(cert key ca pass)) {
     no strict "refs";
-    *$name = sub {
-	my($self);
-	$self = shift(@_);
-	validate_pos(@_) if @_;
-	return($self->{$name});
+    *{ $name } = sub {
+        my($self);
+        $self = shift(@_);
+        validate_pos(@_) if @_;
+        return($self->{$name});
     };
 }
 
@@ -59,23 +59,23 @@ foreach my $name (qw(cert key ca pass)) {
 #
 
 $Authen::Credential::Preparator{x509}{"IO::Socket::SSL"} = sub {
-    my($self, %data, $tmp);
+    my($self, %data);
     $self = shift(@_);
     validate_pos(@_) if @_;
-    foreach $tmp ($self->cert(), $ENV{X509_USER_CERT}) {
-	next unless defined($tmp);
-	$data{SSL_cert_file} = $tmp;
-	last;
+    foreach my $tmp ($self->cert(), $ENV{X509_USER_CERT}) {
+        next unless defined($tmp);
+        $data{SSL_cert_file} = $tmp;
+        last;
     }
-    foreach $tmp ($self->key(), $ENV{X509_USER_KEY}) {
-	next unless defined($tmp);
-	$data{SSL_key_file} = $tmp;
-	last;
+    foreach my $tmp ($self->key(), $ENV{X509_USER_KEY}) {
+        next unless defined($tmp);
+        $data{SSL_key_file} = $tmp;
+        last;
     }
-    foreach $tmp ($self->ca(), $ENV{X509_CERT_DIR}) {
-	next unless defined($tmp);
-	$data{SSL_ca_path} = $tmp;
-	last;
+    foreach my $tmp ($self->ca(), $ENV{X509_CERT_DIR}) {
+        next unless defined($tmp);
+        $data{SSL_ca_path} = $tmp;
+        last;
     }
     $data{SSL_passwd_cb} = sub { return($self->pass()) }
         if defined($self->pass());

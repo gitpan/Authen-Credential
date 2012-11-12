@@ -13,8 +13,8 @@
 package Authen::Credential::plain;
 use strict;
 use warnings;
-our $VERSION  = "0.7";
-our $REVISION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+our $VERSION  = "0.8";
+our $REVISION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 #
 # inheritance
@@ -45,11 +45,11 @@ $Authen::Credential::ValidationSpec{plain} = {
 
 foreach my $name (qw(name pass)) {
     no strict "refs";
-    *$name = sub {
-	my($self);
-	$self = shift(@_);
-	validate_pos(@_) if @_;
-	return($self->{$name});
+    *{ $name } = sub {
+        my($self);
+        $self = shift(@_);
+        validate_pos(@_) if @_;
+        return($self->{$name});
     };
 }
 

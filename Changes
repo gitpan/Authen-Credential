@@ -1,5 +1,8 @@
 Revision history for Authen-Credential:
 
+0.8	Mon Nov 12 2012
+	* Cleanup code to please Perl::Critic.
+
 0.7	Wed Oct 24 2012
 	* Now using No::Worries.
 

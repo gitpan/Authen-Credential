@@ -13,8 +13,8 @@
 package Authen::Credential;
 use strict;
 use warnings;
-our $VERSION  = "0.7";
-our $REVISION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
+our $VERSION  = "0.8";
+our $REVISION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 
 #
 # used modules
@@ -55,12 +55,12 @@ sub _require ($) {
     my($module) = @_;
 
     return if $_LoadedModule{$module};
-    eval("require $module");
+    eval("require $module"); ## no critic 'ProhibitStringyEval'
     if ($@) {
-	$@ =~ s/\s+at\s.+?\sline\s+\d+\.?$//;
-	dief("failed to load %s: %s", $module, $@);
+        $@ =~ s/\s+at\s.+?\sline\s+\d+\.?$//;
+        dief("failed to load %s: %s", $module, $@);
     } else {
-	$_LoadedModule{$module} = 1;
+        $_LoadedModule{$module} = 1;
     }
 }
 
@@ -73,18 +73,18 @@ sub _check ($@) {
 
     $scheme = shift(@_);
     dief("invalid credential scheme (missing validation spec): %s", $scheme)
-	unless $ValidationSpec{$scheme};
+        unless $ValidationSpec{$scheme};
     return(validate_with(
-	params => \@_,
-	spec => {
-	    %{ $ValidationSpec{$scheme} },
-	    scheme => {
-		type    => SCALAR,
-		regex   => qr/^\Q$scheme\E$/,
-		default => $scheme,
-	    },
-	},
-	stack_skip => 2,
+        params => \@_,
+        spec => {
+            %{ $ValidationSpec{$scheme} },
+            scheme => {
+                type    => SCALAR,
+                regex   => qr/^\Q$scheme\E$/,
+                default => $scheme,
+            },
+        },
+        stack_skip => 2,
     ));
 }
 
@@ -103,21 +103,21 @@ sub new : method {
 
     $class = shift(@_);
     if ($class eq __PACKAGE__) {
-	# toplevel constructor
-	%option = validate_with(
-	    params => \@_,
-	    spec => {
-		scheme => {
-		    type    => SCALAR,
-		    regex   => $_IdRe,
-		    default => "none",
-		},
-	    },
-	    allow_extra => 1,
-	);
-	$cc = $class . "::" . $option{scheme};
-	_require($cc);
-	return($cc->new(\%option));
+        # toplevel constructor
+        %option = validate_with(
+            params => \@_,
+            spec => {
+                scheme => {
+                    type    => SCALAR,
+                    regex   => $_IdRe,
+                    default => "none",
+                },
+            },
+            allow_extra => 1,
+        );
+        $cc = $class . "::" . $option{scheme};
+        _require($cc);
+        return($cc->new(\%option));
     }
     # inherited constructor
     $scheme = substr($class, length(__PACKAGE__) + 2);
@@ -129,21 +129,23 @@ sub parse : method {
 
     $class = shift(@_);
     validate_pos(@_, { type => SCALAR })
-	unless @_ == 1 and defined($_[0]) and ref($_[0]) eq "";
+        unless @_ == 1 and defined($_[0]) and ref($_[0]) eq "";
     $string = shift(@_);
     return($class->new()) if $string eq "";
     dief("invalid credential string: %s", $string)
-	unless $string =~ /^[${_ValChars}${_SepChars}\%\=]+$/o;
+        unless $string =~ /^[${_ValChars}${_SepChars}\%\=]+$/o;
     @list = split(/[${_SepChars}]+/o, $string);
     dief("invalid credential string: %s", $string)
-	unless @list and $list[0] =~ /^($_IdRe)$/o;
+        unless @list and $list[0] =~ /^($_IdRe)$/o;
     %option = (scheme => shift(@list));
-    foreach $string (@list) {
-	dief("invalid credential key=value: %s", $string)
-	    unless $string =~ /^($_IdRe)\=([$_ValChars\%]*)$/o;
-	dief("duplicate credential key: %s", $1)
-	    if exists($option{$1});
-	$option{$1} = uri_unescape($2);
+    foreach my $kv (@list) {
+        if ($kv =~ /^($_IdRe)\=([$_ValChars\%]*)$/o) {
+            dief("duplicate credential key: %s", $1)
+                if exists($option{$1});
+            $option{$1} = uri_unescape($2);
+        } else {
+            dief("invalid credential key=value: %s", $kv);
+        }
     }
     return($class->new(\%option));
 }
@@ -158,19 +160,19 @@ sub hash : method {
     $self = shift(@_);
     validate_pos(@_) if @_;
     return($self) unless wantarray();
-    return(%$self);
+    return(%{ $self });
 }
 
 sub string : method {
-    my($self, @parts, $key);
+    my($self, @parts);
 
     $self = shift(@_);
     validate_pos(@_) if @_;
     dief("invalid credential: no scheme") unless $self->{scheme};
     @parts = ($self->{scheme});
-    foreach $key (sort(keys(%$self))) {
-	next if $key eq "scheme";
-	push(@parts, $key . "=" . uri_escape($self->{$key}, "^$_ValChars"));
+    foreach my $key (sort(keys(%{ $self }))) {
+        next if $key eq "scheme";
+        push(@parts, $key . "=" . uri_escape($self->{$key}, "^$_ValChars"));
     }
     return(join(" ", @parts));
 }
@@ -181,11 +183,11 @@ sub string : method {
 
 foreach my $name (qw(scheme)) {
     no strict "refs";
-    *$name = sub {
-	my($self);
-	$self = shift(@_);
-	validate_pos(@_) if @_;
-	return($self->{$name});
+    *{ $name } = sub {
+        my($self);
+        $self = shift(@_);
+        validate_pos(@_) if @_;
+        return($self->{$name});
     };
 }
 
@@ -210,12 +212,12 @@ sub prepare : method {
 
     $self = shift(@_);
     validate_pos(@_, { type => SCALAR })
-	unless @_ == 1 and defined($_[0]) and ref($_[0]) eq "";
+        unless @_ == 1 and defined($_[0]) and ref($_[0]) eq "";
     $target = shift(@_);
     $preparator = $Preparator{$self->scheme()}{$target};
     return($preparator->($self)) if $preparator;
     dief("invalid %s credential preparation target: %s",
-	 $self->scheme(), $target);
+         $self->scheme(), $target);
 }
 
 1;
