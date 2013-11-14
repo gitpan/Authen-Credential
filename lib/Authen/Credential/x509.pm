@@ -13,8 +13,8 @@
 package Authen::Credential::x509;
 use strict;
 use warnings;
-our $VERSION  = "1.0";
-our $REVISION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+our $VERSION  = "1.0_1";
+our $REVISION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 
 #
 # inheritance
@@ -34,17 +34,18 @@ use Params::Validate qw(validate_pos :types);
 #
 
 $Authen::Credential::ValidationSpec{x509} = {
-    cert => { type => SCALAR, optional => 1 },
-    key  => { type => SCALAR, optional => 1 },
-    ca   => { type => SCALAR, optional => 1 },
-    pass => { type => SCALAR, optional => 1 },
+    cert    => { type => SCALAR, optional => 1 },
+    key     => { type => SCALAR, optional => 1 },
+    ca      => { type => SCALAR, optional => 1 },
+    ca_file => { type => SCALAR, optional => 1 },
+    pass    => { type => SCALAR, optional => 1 },
 };
 
 #
 # accessors
 #
 
-foreach my $name (qw(cert key ca pass)) {
+foreach my $name (qw(cert key ca ca_file pass)) {
     no strict "refs";
     *{ $name } = sub {
         my($self);
@@ -75,6 +76,11 @@ $Authen::Credential::Preparator{x509}{"IO::Socket::SSL"} = sub {
     foreach my $tmp ($self->ca(), $ENV{X509_CERT_DIR}) {
         next unless defined($tmp);
         $data{SSL_ca_path} = $tmp;
+        last;
+    }
+    foreach my $tmp ($self->ca_file(), $ENV{X509_CERT_FILE}) {
+        next unless defined($tmp);
+        $data{SSL_ca_file} = $tmp;
         last;
     }
     $data{SSL_passwd_cb} = sub { return($self->pass()) }
@@ -115,6 +121,10 @@ the pass-phrase protecting the private key (optional)
 =item ca
 
 the path of the directory containing trusted certificates (optional)
+
+=item ca_file
+
+the path of the file that contains the trusted certificate (optional)
 
 =back
 

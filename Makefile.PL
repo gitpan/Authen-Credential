@@ -7,7 +7,7 @@ my(%param, $emv, $name);
 %param = (
     NAME                   => 'Authen::Credential',
     AUTHOR                 => 'Lionel Cons <lionel.cons@cern.ch>',
-    VERSION                => '1.0',
+    VERSION                => '1.0_1',
     ABSTRACT_FROM          => 'lib/Authen/Credential.pm',
     LICENSE                => 'perl',
     PL_FILES               => {},

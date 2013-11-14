@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Authen-Credential
-version:            1.0
+version:            1.0_1
 abstract:           abstraction of a credential
 author:
     - Lionel Cons <lionel.cons@cern.ch>

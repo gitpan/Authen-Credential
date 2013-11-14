@@ -14,8 +14,8 @@ This package currently supports "none", "plain" and "x509" but others
 can be added by providing the supporting code in a separate module.
 
 A Python implementation of the same credential abstractions is available
-at http://pypi.python.org/pypi/auth.credential so credentials can be
-shared between different programming languages.
+at https://github.com/cern-mig/python-auth-credential so credentials can
+be shared between different programming languages.
 
 INSTALLATION
 

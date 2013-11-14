@@ -13,8 +13,8 @@
 package Authen::Credential;
 use strict;
 use warnings;
-our $VERSION  = "1.0";
-our $REVISION = sprintf("%d.%02d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/);
+our $VERSION  = "1.0_1";
+our $REVISION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 
 #
 # used modules
@@ -284,8 +284,8 @@ This package currently supports C<none>, C<plain> and C<x509> but others
 can be added by providing the supporting code in a separate module.
 
 A Python implementation of the same credential abstractions is available
-at http://pypi.python.org/pypi/auth.credential so credentials can be
-shared between different programming languages.
+at L<https://github.com/cern-mig/python-auth-credential> so credentials
+can be shared between different programming languages.
 
 For a given scheme, a credential is represented by an object with a
 fixed set of string attributes. For instance, the C<plain> scheme has

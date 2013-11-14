@@ -1,5 +1,8 @@
 Revision history for Authen-Credential:
 
+???	???
+	* Authen::Credential::x509 now has a ca_file attribute.
+
 1.0	Mon Feb 25 2013
 	* Promoted to 1.0 after successful testing.
 	* The API is now stable.
